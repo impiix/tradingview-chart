@@ -106,6 +106,7 @@ class ChartService {
         $filename = sprintf("%s/%s.png", $this->config['output_path'], $id);
         imagepng($baseImage, $filename);
 
+        //returns link to picture location
         return $_SERVER['SERVER_NAME'] . sprintf("%s/%s.png", $this->config['server_path'], $id);
     }
 }
