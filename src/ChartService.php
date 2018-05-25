@@ -20,6 +20,10 @@ class ChartService {
 
         $baseData = json_decode($baseData, true);
 
+        if (!isset($baseData['hidpiRatio']) || !isset($baseData['charts'][0])) {
+            throw new \RuntimeException("Incorrect json data provided!");
+        }
+
         $hidpi = $baseData['hidpiRatio'];
         $data = $baseData['charts'][0];
 
