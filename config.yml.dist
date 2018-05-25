@@ -1,0 +1,4 @@
+parameters:
+    chart_font_path: ../fonts/Arial.ttf
+    output_path: ../pictures
+    server_path: /pictures

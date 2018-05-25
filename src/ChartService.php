@@ -2,57 +2,29 @@
 
 namespace TradingView;
 
-use TradingView\Document\Image;
-use TradingView\Service\UploadUrlGeneratorInterface;
-use TradingView\Service\ImageManagerInterface;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-
 class ChartService {
-    /**
-     * @var ImageManagerInterface
-     */
-    protected $imageManager;
 
-    /**
-     * @var UploadUrlGeneratorInterface
-     */
-    protected $uploadUrlGenerator;
+    protected $config;
 
-    /**
-     * @var string
-     */
-    protected $fontPath;
-
-    /**
-     * @param ImageManagerInterface       $imageManager
-     * @param UploadUrlGeneratorInterface $uploadUrlGenerator
-     */
     public function __construct(
-        ImageManagerInterface $imageManager,
-        UploadUrlGeneratorInterface $uploadUrlGenerator,
-        $fontPath
+        array $config
     ) {
-        $this->imageManager = $imageManager;
-        $this->uploadUrlGenerator = $uploadUrlGenerator;
-        $this->fontPath = $fontPath;
+        $this->config = $config['parameters'];
     }
 
-    /**
-     * @param array $baseData
-     *
-     * @return string
-     */
-    public function save(array $baseData) {
+    public function save(string $baseData): string {
 
         $height = 0;
         $width = 0;
         $container = [];
 
+        $baseData = json_decode($baseData, true);
+
         $hidpi = $baseData['hidpiRatio'];
         $data = $baseData['charts'][0];
 
         $fontsize = 10 * $hidpi;
-        $font = $this->fontPath;
+        $font = $this->config["chart_font_path"];
 
         $color = $data['colors']['text'];
         $format = strlen($color) == 4 ? "#%1x%1x%1x" : "#%2x%2x%2x";
@@ -127,17 +99,9 @@ class ChartService {
 
         //save
         $id = md5(rand(0, getrandmax()));
-        $filename = '/tmp/'. $id . '.png';
+        $filename = sprintf("%s/%s.png", $this->config['output_path'], $id);
         imagepng($baseImage, $filename);
-        $file = new UploadedFile($filename, $id);
-        $image = new Image();
-        $image->setImage($file);
-        $this->imageManager->saveImage($image);
 
-        unlink($filename);
-
-        $path = $this->uploadUrlGenerator->generateUrl($image->getPath());
-
-        return $path;
+        return $_SERVER['SERVER_NAME'] . sprintf("%s/%s.png", $this->config['server_path'], $id);
     }
 }

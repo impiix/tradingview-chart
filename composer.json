@@ -1,0 +1,25 @@
+{
+  "autoload": {
+    "psr-4": {
+      "TradingView\\": "src/"
+    }
+  },
+  "require": {
+    "symfony/yaml": "v4.0.11",
+    "incenteev/composer-parameter-handler": "v2.1.3",
+    "ext-gd": "*"
+  },
+  "extra": {
+    "incenteev-parameters": {
+      "file": "config.yml"
+    }
+  },
+  "scripts": {
+    "post-install-cmd": [
+      "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters"
+    ],
+    "post-update-cmd": [
+      "Incenteev\\ParameterHandler\\ScriptHandler::buildParameters"
+    ]
+  }
+}
