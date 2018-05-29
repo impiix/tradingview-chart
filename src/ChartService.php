@@ -2,8 +2,8 @@
 
 namespace TradingView;
 
-class ChartService {
-
+class ChartService
+{
     protected $config;
 
     public function __construct(
@@ -12,8 +12,8 @@ class ChartService {
         $this->config = $config['parameters'];
     }
 
-    public function save(string $baseData): string {
-
+    public function save(string $baseData): string
+    {
         $height = 0;
         $width = 0;
         $container = [];
@@ -34,21 +34,21 @@ class ChartService {
         $format = strlen($color) == 4 ? "#%1x%1x%1x" : "#%2x%2x%2x";
         list($r, $g, $b) = sscanf($color, $format);
 
-        foreach($data['panes'] as $pane) {
+        foreach ($data['panes'] as $pane) {
             $contents = [
                 $pane['content'],
                 $pane['rightAxis']['content']
             ];
             $contents = array_map(
-                function($el){
+                function ($el) {
                     return imagecreatefromstring(base64_decode(substr($el, 22)));
                 },
                 $contents
             );
 
             //add labels if exist
-            if(isset($pane['studies'])) {
-                foreach($pane['studies'] as $index => $study) {
+            if (isset($pane['studies'])) {
+                foreach ($pane['studies'] as $index => $study) {
                     $color = imagecolorallocate($contents[0], $r, $g, $b);
                     //max 6 labels in column
                     $x = $fontsize + (intval($index/6) * imagesx($contents[0])/4);
@@ -75,7 +75,7 @@ class ChartService {
         $white = imagecolorallocate($baseImage, 255, 255, 255);
         imagefill($baseImage, 0, 0, $white);
 
-        foreach($container as $contents) {
+        foreach ($container as $contents) {
             imagecopy($baseImage, $contents[0], 0, $currentHeight, 0, 0, imagesx($contents[0]), imagesy($contents[0]));
             imagecopy(
                 $baseImage,
