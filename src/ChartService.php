@@ -61,7 +61,7 @@ class ChartService
         $this->height += imagesy($timeContent);
 
         $currentHeight = $fontsize * 3;
-        $baseImage = imagecreatetruecolor($this->width/$hidpi + 10, $this->height/$hidpi + $currentHeight + 5);
+        $baseImage = imagecreatetruecolor($this->width, $this->height + $currentHeight + 5);
         $white = imagecolorallocate($baseImage, 255, 255, 255);
         imagefill($baseImage, 0, 0, $white);
 
@@ -70,14 +70,14 @@ class ChartService
             imagecopy(
                 $baseImage,
                 $contents[1],
-                imagesx($contents[0])/$hidpi,
+                imagesx($contents[0]),
                 $currentHeight,
                 0,
                 0,
                 imagesx($contents[1]),
                 imagesy($contents[1])
             );
-            $currentHeight += imagesy($contents[0])/$hidpi;
+            $currentHeight += imagesy($contents[0]);
         }
         imagecopy($baseImage, $timeContent, 0, $currentHeight, 0, 0, imagesx($timeContent), imagesy($timeContent));
 
