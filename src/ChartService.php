@@ -57,29 +57,18 @@ class ChartService
         }
 
         //skip $data['timeAxis'][0]['rhsStub']['content'] as not needed
-        $timeContent = imagecreatefromstring(base64_decode(substr($data['timeAxis']['content'], 22)));
+        $timeContent = $this->createFromString($data['timeAxis']['content']);
         $this->height += imagesy($timeContent);
 
         $currentHeight = $fontsize * 3;
-        $baseImage = imagecreatetruecolor($this->width, $this->height + $currentHeight + 5);
-        $white = imagecolorallocate($baseImage, 255, 255, 255);
-        imagefill($baseImage, 0, 0, $white);
+        $baseImage = $this->createBaseImage($currentHeight);
 
         foreach ($container as $contents) {
-            imagecopy($baseImage, $contents[0], 0, $currentHeight, 0, 0, imagesx($contents[0]), imagesy($contents[0]));
-            imagecopy(
-                $baseImage,
-                $contents[1],
-                imagesx($contents[0]),
-                $currentHeight,
-                0,
-                0,
-                imagesx($contents[1]),
-                imagesy($contents[1])
-            );
+            $this->imageCopy($baseImage, $contents[0], 0, $currentHeight);
+            $this->imageCopy($baseImage, $contents[1], imagesx($contents[0]), $currentHeight);
             $currentHeight += imagesy($contents[0]);
         }
-        imagecopy($baseImage, $timeContent, 0, $currentHeight, 0, 0, imagesx($timeContent), imagesy($timeContent));
+        $this->imageCopy($baseImage, $timeContent, 0, $currentHeight);
 
         $this->createUpperLabel($baseImage, $data, $fontsize, $r, $g, $b);
 
@@ -89,6 +78,25 @@ class ChartService
 
         //returns link to picture location
         return $this->getWebPath($id);
+    }
+
+    protected function createBaseImage($currentHeight)
+    {
+        $baseImage = imagecreatetruecolor($this->width, $this->height + $currentHeight + 5);
+        $white = imagecolorallocate($baseImage, 255, 255, 255);
+        imagefill($baseImage, 0, 0, $white);
+
+        return $baseImage;
+    }
+
+    protected function createFromString($string)
+    {
+        return imagecreatefromstring(base64_decode(substr($string, 22)));
+    }
+
+    protected function imageCopy($baseImage, $content, $width, $height)
+    {
+        imagecopy($baseImage, $content, $width, $height, 0, 0, imagesx($content), imagesy($content));
     }
 
     protected function createUpperLabel($baseImage, array $data, $fontsize, $r, $g, $b)
@@ -132,7 +140,7 @@ class ChartService
         ];
         $contents = array_map(
             function ($el) {
-                return imagecreatefromstring(base64_decode(substr($el, 22)));
+                return $this->createFromString($el);
             },
             $contents
         );
@@ -143,7 +151,7 @@ class ChartService
                 $color = imagecolorallocate($contents[0], $r, $g, $b);
                 //max 6 labels in column
                 $x = $fontsize + (intval($index/6) * imagesx($contents[0])/4);
-                $y = ($index%6) * 1.5 * $fontsize + 2 * $fontsize;
+                $y = ($index % 6) * 1.5 * $fontsize + 2 * $fontsize;
 
                 imagettftext($contents[0], $fontsize, 0, $x, $y, $color, $this->font, $study);
             }
